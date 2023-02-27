@@ -5,6 +5,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 public class App {
 
@@ -13,6 +14,12 @@ public class App {
       @Override
       public void onOpen(ServerHandshake serverHandshake) {
         System.out.println("Connected to server");
+
+        JSONObject subscribeMsg = new JSONObject();
+        subscribeMsg.put("op", "subscribe");
+        subscribeMsg.put("topic", "/rosout/topics");
+        send(subscribeMsg.toString());
+        System.out.println("LOOOOOL");
       }
 
       @Override
