@@ -15,7 +15,7 @@ public class App {
 
   public static void main(String[] args) throws URISyntaxException, InterruptedException {
     // private Session session;
-    WebSocketClient client = new WebSocketClient(new URI("ws://localhost:9090")) {
+    WebSocketClient client = new WebSocketClient(new URI("ws://localhost:8080")) {
       @Override
       public void onOpen(ServerHandshake serverHandshake) {
         System.out.println("Connected to server");

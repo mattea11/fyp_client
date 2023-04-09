@@ -1,0 +1,36 @@
+%%Making sure there are not more than 3 bad logins in 5 seconds.
+
+GLOBAL {
+	VARIABLES {
+		int badLogins = 0;
+		Clock lockedTime = new Clock();
+	}
+	
+	EVENTS{
+		badLogin() = {*.badLogin()}
+		goodLogin() = {*.goodLogin()}
+		unlockAccount(boolean locked) = {*.setLocked(locked)}
+	}
+	
+	PROPERTY badLoginsProperty{
+		STATES{
+			BAD{
+				unlockedPrematurely
+			}
+			NORMAL{
+				blocked
+			}
+			STARTING{
+				unblocked
+			}
+		}
+		
+		TRANSITIONS{
+			unblocked -> unblocked [goodLogin\\badLogins = 0;System.out.println("Good login observed. Bad logins: " + badLogins);]
+			unblocked -> unblocked [badLogin\badLogins < 2\badLogins++;System.out.println("Bad login observed. Bad logins: " + badLogins);]
+			unblocked -> blocked [badLogin\badLogins == 2\badLogins++;lockedTime.reset();System.out.println("Bad login observed. Bad logins: " + badLogins);]
+			blocked -> unlockedPrematurely [unlockAccount\locked == false && lockedTime.compareTo(10)<0\badLogins=0;System.out.println("Unblocked prematurely! Entering bad state!");]
+			blocked -> unblocked [unlockAccount\locked == false && lockedTime.compareTo(10)>=0\badLogins=0;System.out.println("Going back to unblocked.");]
+		}
+	}
+}
