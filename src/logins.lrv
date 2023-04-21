@@ -1,0 +1,89 @@
+
+IMPORTS{
+import main.Bank;
+import main.User;
+import main.Account;
+}
+
+GLOBAL{
+
+        VARIABLES{
+            int noOfUsers = 0;
+        }
+
+        EVENTS{
+            monitor_data() = {*.cleaned_nav_data()}
+            deleteUser() = {*.deleteUser()}
+        }   
+
+        PROPERTY Navigation{
+            STATES{
+                BAD{
+                    tooClose
+                }
+				NORMAL{
+                    stop
+                    turn
+                }
+                STARTING{
+                    move
+                }
+            }
+
+            TRANSITIONS{
+                move->move [sendvalidMove\\System.out.println("Valid move!");]
+                move->tooClose[sendInvalidMove\changeMove\System.out.println("Invalid move!");]
+                tooMany->start [deleteUser\noOfUsers == 6\noOfUsers--;]
+                start->badDelete [deleteUser\noOfUsers == 0\System.out.println("BAD State!!!");]
+                start->tooMany [addUser\noOfUsers == 5\noOfUsers++;]
+                start->start [addUser\\noOfUsers++;]
+                start->start [deleteUser\\noOfUsers--;]
+            }
+        }
+    
+    
+        PROPERTY Velocity{
+            STATES{
+                BAD{
+                    tooFast
+                }
+                STARTING{
+                    incSpeed
+                    decSpeed
+                }
+            }
+
+            TRANSITIONS{
+                tooMany->tooMany [addAccount\\noOfAccounts++;System.out.println("Too many accounts already");]
+                tooMany->tooMany [deleteAccount\noOfAccounts > 6\noOfAccounts--;]
+                tooMany->start [deleteAccount\noOfAccounts == 6\noOfAccounts--;]
+                start->badDelete [deleteAccount\noOfAccounts == 0\System.out.println("BAD State!!!");]
+                start->tooMany [addAccount\noOfAccounts == 5\noOfAccounts++;]
+                start->start [addAccount\\noOfAccounts++;]
+                start->start [deleteAccount\\noOfAccounts--;]
+            }
+        }
+ 
+	
+        PROPERTY Mast{
+            STATES{
+                BAD{
+                    tooExt
+                }
+                STARTING{
+                    moveClockwise
+                    moveAnticlockwise
+                }
+            }
+
+            TRANSITIONS{
+                tooMany->tooMany [addTransaction\\noOfTransactions++;System.out.println("Too many transactions already");]
+                tooMany->tooMany [deleteTransaction\noOfTransactions > 6\noOfTransactions--;]
+                tooMany->start [deleteTransaction\noOfTransactions == 6\noOfTransactions--;]
+                start->badDelete [deleteTransaction\noOfTransactions == 0\System.out.println("BAD State!!!");]
+                start->tooMany [addTransaction\noOfTransactions == 5\noOfTransactions++;]
+                start->start [addTransaction\\noOfTransactions++;]
+                start->start [deleteTransaction\\noOfTransactions--;]
+            }
+        }
+}
