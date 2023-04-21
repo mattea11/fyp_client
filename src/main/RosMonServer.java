@@ -27,7 +27,7 @@ public class RosMonServer {
 			RosBridge bridge = new RosBridge();
 			bridge.connect(args[0], true);
 
-			bridge.subscribe(SubscriptionRequestMsg.generate("/ros_to_java")
+			bridge.subscribe(SubscriptionRequestMsg.generate("/larvaToRos")
 						.setType("std_msgs/String")
 						.setThrottleRate(1)
 						.setQueueLength(1),
