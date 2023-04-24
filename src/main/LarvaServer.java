@@ -1,31 +1,67 @@
 package main;
 
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
-@ServerEndpoint("/Larva_socket")
 public class LarvaServer {
+    private int port;
+    private List<WebSocketClientHandler> clients;
 
-    @OnOpen
-    public void onOpen(Session session) {
-        System.out.println("WebSocket opened: " + session.getId());
+    public LarvaServer(int port) {
+        this.port = port;
+        this.clients = new ArrayList<>();
     }
 
-    @OnMessage
-    public void onMessage(String message, Session session) throws IOException {
-        System.out.println("WebSocket message received: " + message);
-        session.getBasicRemote().sendText("Server: " + message);
+    public void start() {
+        try {
+            // Get the computer's IP address
+            InetAddress ipAddress = InetAddress.getLocalHost();
+            String hostAddress = ipAddress.getHostAddress();
+
+            System.out.println("WebSocket server started on: " + hostAddress + ":" + port);
+
+            // Create a server socket on the specified port
+            ServerSocket serverSocket = new ServerSocket(port);
+
+            while (true) {
+                // Accept incoming client connections
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+
+                // Create a new handler for the client and start it in a separate thread
+                WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, this); //to fix edit client handler
+                clients.add(clientHandler);
+                Thread clientThread = new Thread(clientHandler);
+                clientThread.start();
+            }
+
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    @OnClose
-    public void onClose(Session session, CloseReason reason) {
-        System.out.println("WebSocket closed: " + session.getId() + ", Reason: " + reason.getReasonPhrase());
+    public void broadcast(String message) {
+        // Broadcast a message to all connected clients
+        for (WebSocketClientHandler client : clients) {
+            client.sendMessage(message);
+        }
     }
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.err.println("WebSocket error: " + session.getId());
-        throwable.printStackTrace();
+    public void removeClient(WebSocketClientHandler client) {
+        // Remove a client from the list of connected clients
+        clients.remove(client);
+    }
+
+    public static void main(String[] args) {
+        // Start the WebSocket server on port 8080
+    	Runner  server = new LarvaServer(8080);
+        server.start();
     }
 }

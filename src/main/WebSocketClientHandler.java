@@ -8,6 +8,7 @@ import java.net.Socket;
 
 import org.java_websocket.server.WebSocketServer;
 
+//for handeling client connection to larva server
 public class WebSocketClientHandler implements Runnable {
     private Socket clientSocket;
     private Runner server;
