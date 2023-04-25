@@ -69,5 +69,7 @@
 	<classpathentry kind="lib" path="D:/jars/units-2.85.jar"/>
 	<classpathentry kind="lib" path="D:/jars/java_rosbridge.jar"/>
 	<classpathentry kind="lib" path="D:/jars/java_rosbridge_all.jar"/>
+	<classpathentry kind="lib" path="D:/jars/Java-WebSocket-1.5.1.jar"/>
+	<classpathentry kind="lib" path="D:/jars/javaee-api-8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

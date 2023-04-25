@@ -61,7 +61,7 @@ public class LarvaServer {
 
     public static void main(String[] args) {
         // Start the WebSocket server on port 8080
-    	Runner  server = new LarvaServer(8080);
+    	LarvaServer  server = new LarvaServer(8080);
         server.start();
     }
 }

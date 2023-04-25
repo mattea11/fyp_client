@@ -26,5 +26,11 @@ public class ros_mon_data {
 			  
 		}
 	}
+	
+	public static JSONObject create_mast_obj(Double mast){
+		//
+		JSONObject reply = "";
+        return reply;
+	}
 
 }
