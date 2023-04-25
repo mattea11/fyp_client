@@ -1,63 +1,23 @@
 package main;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import javax.websocket.ClientEndpoint;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONObject;
-
-@ClientEndpoint
 public class Runner {
 	
-	 public static void main(String[] args) throws URISyntaxException, InterruptedException {
-		    WebSocketClient client = new WebSocketClient(new URI("ws://localhost:9090")) {
-		      @Override
-		      public void onOpen(ServerHandshake serverHandshake) {
-		        System.out.println("Connected to server");
+	 public static void main(String[] args) throws URISyntaxException, InterruptedException{
+	       // Start server in a separate thread
+	        Thread serverThread = new Thread(() -> {
+	            LarvaServer larvaServer = new LarvaServer(8080);
+	            larvaServer.start();
+	        });
+	        serverThread.start();
 
-		        JSONObject subscribeMsg = new JSONObject();
-		        JSONObject jointControllerStateMsg = new JSONObject(); // Create a JSON object for the expected structure
-		        jointControllerStateMsg.put("process_value", 0.5); // Set the process_value field with the correct value
-		        subscribeMsg.put("op", "publish");
-		        subscribeMsg.put("topic", "/curiosity_mars_rover/arm_01_joint_position_controller/state");
-		        subscribeMsg.put("msg", jointControllerStateMsg.toString()); // Set the msg field with the correctly formatted JSON object
-		        send(subscribeMsg.toString());
-		        System.out.println("LOOOOOL");
-		      }
+	        // Start RosBridgeClient in the main thread
+	        RosBridgeClient rbc = new RosBridgeClient();
+	        rbc.StartRosBridgeClient();
 
-		      @Override
-		      public void onMessage(String s) {
-		        System.out.println("Received message: " + s);
-		      }
-
-		      @Override
-		      public void onClose(int i, String s, boolean b) {
-		        System.out.println("Disconnected from server");
-		      }
-
-		      @Override
-		      public void onError(Exception e) {
-		        System.out.println("Error occurred: " + e.getMessage());
-		      }
-		    };
-
-		    client.connect();
-		    System.out.println("Connecting to server...");
-		    // Wait for connection to be established
-		    CountDownLatch latch = new CountDownLatch(1);
-		    latch.await(5, TimeUnit.SECONDS);
-
-		    if (client.isOpen()) {
-		      System.out.println("Sending message to server");
-		      client.send("Hello, server!");
-		    }
-
-		    // Close the connection
-//		    client.close();
-		  }
+	        // Wait for server thread to finish
+	        serverThread.join();
+	 }
 }

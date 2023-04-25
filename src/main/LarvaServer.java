@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LarvaServer {
+public class LarvaServer{
     private int port;
     private List<WebSocketClientHandler> clients;
 
@@ -17,13 +17,14 @@ public class LarvaServer {
         this.clients = new ArrayList<>();
     }
 
-    public void start() {
+
+	public void start() {
         try {
             // Get the computer's IP address
             InetAddress ipAddress = InetAddress.getLocalHost();
             String hostAddress = ipAddress.getHostAddress();
 
-            System.out.println("WebSocket server started on: " + hostAddress + ":" + port);
+            System.out.println("Larva server started on: " + hostAddress + ":" + port);
 
             // Create a server socket on the specified port
             ServerSocket serverSocket = new ServerSocket(port);
@@ -31,7 +32,7 @@ public class LarvaServer {
             while (true) {
                 // Accept incoming client connections
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+                System.out.println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
 
                 // Create a new handler for the client and start it in a separate thread
                 WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, this); //to fix edit client handler
@@ -59,9 +60,9 @@ public class LarvaServer {
         clients.remove(client);
     }
 
-    public static void main(String[] args) {
-        // Start the WebSocket server on port 8080
-    	LarvaServer  server = new LarvaServer(8080);
-        server.start();
-    }
+//    public static void main(String[] args) {
+//        // Start the WebSocket server on port 8080
+//    	LarvaServer  server = new LarvaServer(8080);
+//        server.start();
+//    }
 }

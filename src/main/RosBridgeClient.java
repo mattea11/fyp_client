@@ -1,78 +1,64 @@
 package main;
-import java.io.IOException;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.websocket.ClientEndpoint;
-import javax.websocket.CloseReason;
-import javax.websocket.ContainerProvider;
-import javax.websocket.DeploymentException;
-import javax.websocket.OnClose;
-import javax.websocket.OnMessage;
-import javax.websocket.OnOpen;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 @ClientEndpoint
 public class RosBridgeClient {
-    private Session session;
-    private CountDownLatch latch;
+	
+	 public void StartRosBridgeClient() throws URISyntaxException, InterruptedException {
+	    WebSocketClient client = new WebSocketClient(new URI("ws://localhost:9090")) {
+	      @Override
+	      public void onOpen(ServerHandshake serverHandshake) {
+	        System.out.println("Connected to RosBridge server");
 
-    public RosBridgeClient() {
-        this.latch = new CountDownLatch(1);
-    }
+	        JSONObject subscribeMsg = new JSONObject();
+	        JSONObject jointControllerStateMsg = new JSONObject(); // Create a JSON object for the expected structure
+	        jointControllerStateMsg.put("process_value", 0.5); // Set the process_value field with the correct value
+	        subscribeMsg.put("op", "publish");
+	        subscribeMsg.put("topic", "/curiosity_mars_rover/arm_01_joint_position_controller/state");
+	        subscribeMsg.put("msg", jointControllerStateMsg.toString()); // Set the msg field with the correctly formatted JSON object
+	        send(subscribeMsg.toString());
+	        System.out.println("LOOOOOL");
+	      }
+	      
 
-    public void connect(String endpoint) throws DeploymentException {
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        try {
-            URI uri = new URI(endpoint);
-            container.connectToServer(this, uri);
-            latch.await(); // Wait for connection to be established
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+	      @Override //prob wont need
+	      public void onMessage(String s) {
+	        System.out.println("Received message from RosBridge server : " + s);
+	      }
 
-    @OnOpen
-    public void onOpen(Session session) {
-        System.out.println("WebSocket connection opened: " + session.getId());
-        this.session = session;
-        latch.countDown(); // Release latch to indicate connection is established
-    }
+	      @Override
+	      public void onClose(int i, String s, boolean b) {
+	        System.out.println("Disconnected from RosBridge server");
+	      }
 
-    @OnMessage
-    public void onMessage(String message) {
-        System.out.println("WebSocket message received: " + message);
-    }
+	      @Override
+	      public void onError(Exception e) {
+	        System.out.println("Error occurred on RosBridge connection: " + e.getMessage());
+	      }
+	    };
 
-    @OnClose
-    public void onClose(Session session, CloseReason reason) {
-        System.out.println("WebSocket connection closed: " + session.getId());
-    }
+	    client.connect();
+	    System.out.println("Connecting to RosBridge server...");
+	    // Wait for connection to be established
+	    CountDownLatch latch = new CountDownLatch(1);
+	    latch.await(5, TimeUnit.SECONDS);
 
-    public void sendMessage(String message) throws IOException {
-        if (session != null && session.isOpen()) {
-            session.getBasicRemote().sendText(message);
-        } else {
-            System.err.println("WebSocket session not available or closed.");
-        }
-    }
+	    if (client.isOpen()) {
+	      System.out.println("Sending message to RosBridge server");
+	      client.send("Hello, server!");
+	    }
 
-    public void close() throws IOException {
-        if (session != null && session.isOpen()) {
-            session.close();
-        }
-    }
-    
-    public static void main() throws DeploymentException, IOException{
-    	//connect to the ros system
-    	RosBridgeClient client = new RosBridgeClient();
-    	String RosBridgeURL = "ws://127.0.0.1:9090";
-    	client.connect(RosBridgeURL);
-    	
-//    	send message
-    	String message = "{\"op\":\"publish\",\"topic\":\"/topic_name\",\"msg\":{\"data\":\"Hello, ROS!\"}}";
-    	client.sendMessage(message);
-    }
+		    // Close the connection
+//		    client.close();
+	  }
 }
