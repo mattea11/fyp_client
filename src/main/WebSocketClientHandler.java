@@ -31,19 +31,28 @@ public class WebSocketClientHandler implements Runnable {
     	JSON_cleaner_creator jcc = new JSON_cleaner_creator();
     	
         try {
+        	int msgCount = 0;
             // Create input and output streams for the client socket
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String inputLine;
+            
+            //tell the client they have successfully connected
+            out.println("Your connection has been established !");
 
             // Read input from the client and broadcast it to all clients
             while ((inputLine = in.readLine()) != null) {
+//            	msgCount++;
+//            	System.out.println("Received " + msgCount + " messages from client.");
+            	System.out.println("Client msg: " + inputLine);
             	try{
             	JSONObject jsonInputLine = new JSONObject(inputLine);
-            	Pair<String, Double> cleaned = jcc.clean_data(jsonInputLine);
-            	System.out.println("Received message from client (string): " + cleaned.getValue0());
-            	System.out.println("Received message from client (value): " + cleaned.getValue1());
+            	GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
+            	GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
+            	
+//            	System.out.println("Received message from client curr: " + GlobalVar.curr_data.getValue0() + " " + GlobalVar.curr_data.getValue1());
+//            	System.out.println("Received message from client change: " + GlobalVar.change_data.getValue0() + " " + GlobalVar.change_data.getValue1());
             	}catch (JSONException e) {
             		System.out.println("Error occurred while parsing JSON input: " + e.getMessage());
                 }                
@@ -61,7 +70,7 @@ public class WebSocketClientHandler implements Runnable {
         }
     }
 
-    public void sendMessage(String message) {
+    public void sendMessageToRosMon(String message) {
         // Send a message to the client
         out.println(message);
     }

@@ -9,18 +9,50 @@ import org.json.JSONObject;
 
 public class JSON_cleaner_creator {
 	
-	public Pair<String, Double> clean_data(JSONObject data){
-		Pair<String, Double> data_to_send = null;
-		if(data.has("lin_vel")){
-		data_to_send = Pair.with("lin_vel", data.getDouble("lin_vel"));
+	public Pair<String, Double> get_curr_data(JSONObject data){
+		Pair<String, Double> curr_data = null;
+		if(data.has("curr_speed")){
+		curr_data = Pair.with("curr_speed", data.getDouble("curr_speed"));
 		}
-		if(data.has("mast_angle")){
-			data_to_send = Pair.with("mast_angle", data.getDouble("mast_angle"));
+		else if(data.has("curr_vert_ang")){
+			curr_data = Pair.with("curr_vert_ang", data.getDouble("curr_vert_ang"));
 		}
-		if(data.has("dist")){
-			data_to_send = Pair.with("dist", data.getDouble("dist"));
+		else if(data.has("curr_horiz_ang")){
+			curr_data = Pair.with("curr_horiz_ang", data.getDouble("curr_horiz_ang"));
 		}
-		return data_to_send;
+		else if(data.has("dist")){
+			curr_data = Pair.with("dist", data.getDouble("dist"));
+		}
+		else if(data.has("end program")){
+			curr_data = Pair.with("end program", data.getDouble("end program"));
+		}
+		else{
+			curr_data = null;
+		}
+		return curr_data;
+	}
+	
+	public Pair<String, Double> get_change_data(JSONObject data){
+		Pair<String, Double> change_data = null;
+		if(data.has("change_speed")){
+			change_data = Pair.with("change_speed", data.getDouble("change_speed"));
+		}
+		else if(data.has("change_vert_ang")){
+			change_data = Pair.with("change_vert_ang", data.getDouble("change_vert_ang"));
+		}
+		else if(data.has("change_horiz_ang")){
+			change_data = Pair.with("change_horiz_ang", data.getDouble("change_horiz_ang"));
+		}
+		else if(data.has("dist")){
+			change_data = Pair.with("dist", data.getDouble("dist"));
+		}
+		else if(data.has("end program")){
+			change_data = Pair.with("end program", data.getDouble("end program"));
+		}
+		else{
+			change_data = null;
+		}
+		return change_data;
 	}
 
 	

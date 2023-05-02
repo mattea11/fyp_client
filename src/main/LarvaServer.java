@@ -10,7 +10,7 @@ import java.util.List;
 
 public class LarvaServer{
     private int port;
-    private List<WebSocketClientHandler> clients;
+    private static List<WebSocketClientHandler> clients;
 
     public LarvaServer(int port) {
         this.port = port;
@@ -33,7 +33,7 @@ public class LarvaServer{
                 // Accept incoming client connections
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
-
+                System.out.println("~~~");
                 // Create a new handler for the client and start it in a separate thread
                 WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, this); //to fix edit client handler
                 clients.add(clientHandler);
@@ -48,10 +48,10 @@ public class LarvaServer{
         }
     }
 
-    public void broadcast(String message) {
+    public static void broadcast(String message) {
         // Broadcast a message to all connected clients
         for (WebSocketClientHandler client : clients) {
-            client.sendMessage(message);
+            client.sendMessageToRosMon(message);
         }
     }
 

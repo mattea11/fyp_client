@@ -14,20 +14,11 @@ import org.json.JSONObject;
 @ClientEndpoint
 public class RosBridgeClient {
 	
-	 public void StartRosBridgeClient() throws URISyntaxException, InterruptedException {
+	 public WebSocketClient StartRosBridgeClient() throws URISyntaxException, InterruptedException {
 	    WebSocketClient client = new WebSocketClient(new URI("ws://localhost:9090")) {
 	      @Override
 	      public void onOpen(ServerHandshake serverHandshake) {
 	        System.out.println("Connected to RosBridge server");
-
-	        JSONObject subscribeMsg = new JSONObject();
-	        JSONObject jointControllerStateMsg = new JSONObject(); // Create a JSON object for the expected structure
-	        jointControllerStateMsg.put("process_value", 0.5); // Set the process_value field with the correct value
-	        subscribeMsg.put("op", "publish");
-	        subscribeMsg.put("topic", "/curiosity_mars_rover/arm_01_joint_position_controller/state");
-	        subscribeMsg.put("msg", jointControllerStateMsg.toString()); // Set the msg field with the correctly formatted JSON object
-	        send(subscribeMsg.toString());
-	        System.out.println("LOOOOOL");
 	      }
 	      
 
@@ -54,11 +45,59 @@ public class RosBridgeClient {
 	    latch.await(5, TimeUnit.SECONDS);
 
 	    if (client.isOpen()) {
-	      System.out.println("Sending message to RosBridge server");
-	      client.send("Hello, server!");
+	    	
+	        while (!client.getReadyState().equals(WebSocketClient.READYSTATE.OPEN)) {
+	            // Wait for connection
+	        }
 	    }
-
-		    // Close the connection
-//		    client.close();
+	    return client;
 	  }
+	 
+	 public JSONObject send_navigation_command(double navigation_change){
+		 JSONObject data = new JSONObject();
+		 data.put("data", navigation_change);
+		 
+		 JSONObject msg = new JSONObject();
+		 msg.put("op", "publish");
+		 msg.put("topic", "/move_base_simple/goal");
+		 msg.put("msg", data);
+		 msg.put("type", "geometry_msgs/PoseStamped");
+		 return msg;
+	 }
+	 
+	 public JSONObject send_speed_command(double speed_change){
+		 JSONObject data = new JSONObject();
+		 data.put("data", speed_change);
+		 
+		 JSONObject msg = new JSONObject();
+		 msg.put("op", "publish");
+		 msg.put("topic", "/curiosity_mars_rover/ackermann_drive_controller/cmd_vel");
+		 msg.put("msg", data);
+		 msg.put("type", "geometry_msgs/Twist");
+		 return msg;
+	 }
+	 
+	 public JSONObject send_vert_ang_command(double angle_change){
+        JSONObject data = new JSONObject();
+        data.put("data", angle_change);
+
+        JSONObject msg = new JSONObject();
+        msg.put("op", "publish");
+        msg.put("topic", "/curiosity_mars_rover/mast_cameras_joint_position_controller/command");
+        msg.put("msg", data);
+        msg.put("type", "std_msgs/Float64");
+        return msg;
+	 }
+	 
+	 public JSONObject send_horiz_ang_command(double angle_change){
+	        JSONObject data = new JSONObject();
+	        data.put("data", angle_change);
+
+	        JSONObject msg = new JSONObject();
+	        msg.put("op", "publish");
+	        msg.put("topic", "/curiosity_mars_rover/mast_02_joint_position_controller/command");
+	        msg.put("msg", data);
+	        msg.put("type", "std_msgs/Float64");
+	        return msg;
+		 }
 }
