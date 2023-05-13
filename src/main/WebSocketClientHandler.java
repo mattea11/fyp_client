@@ -31,7 +31,6 @@ public class WebSocketClientHandler implements Runnable {
     	JSON_cleaner_creator jcc = new JSON_cleaner_creator();
     	
         try {
-        	int msgCount = 0;
             // Create input and output streams for the client socket
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -43,17 +42,33 @@ public class WebSocketClientHandler implements Runnable {
 
             // Read input from the client and broadcast it to all clients
             while ((inputLine = in.readLine()) != null) {
-//            	msgCount++;
-//            	System.out.println("Received " + msgCount + " messages from client.");
             	System.out.println("Client msg: " + inputLine);
             	try{
             	JSONObject jsonInputLine = new JSONObject(inputLine);
-            	GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
-            	GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
+                String firstKey = jsonInputLine.keys().next();
+                    
+                if(firstKey.contains("dist")){
+                    GlobalVar.curr_data = null;
+                    GlobalVar.change_data = null;
+
+                    GlobalVar.obj_dist = jcc.get_obj_dist(jsonInputLine);
+                    GlobalVar.x_data = jcc.get_nav_command(jsonInputLine, "x");
+                    GlobalVar.y_data = jcc.get_nav_command(jsonInputLine, "y");
+                    GlobalVar.turn_z_data = jcc.get_nav_command(jsonInputLine, "turn_z");
+                    GlobalVar.turn_w_data = jcc.get_nav_command(jsonInputLine, "turn_w");
+                }
+                else if(firstKey.contains("speed") || firstKey.contains("ang")){
+                    GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
+                    GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
+
+                    GlobalVar.obj_dist = null;
+                    GlobalVar.x_data = null;
+                    GlobalVar.y_data = null;
+                    GlobalVar.turn_z_data = null;
+                    GlobalVar.turn_w_data = null;
+                }
             	
-//            	System.out.println("Received message from client curr: " + GlobalVar.curr_data.getValue0() + " " + GlobalVar.curr_data.getValue1());
-//            	System.out.println("Received message from client change: " + GlobalVar.change_data.getValue0() + " " + GlobalVar.change_data.getValue1());
-            	}catch (JSONException e) {
+           	}catch (JSONException e) {
             		System.out.println("Error occurred while parsing JSON input: " + e.getMessage());
                 }                
             }

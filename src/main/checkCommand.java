@@ -7,27 +7,46 @@ public class checkCommand {
 		return data;
 	}
 
-	public double get_total_data(){
+	public static double get_total_data(){
 		double data = GlobalVar.curr_data.getValue1() + GlobalVar.change_data.getValue1();
 		return data;
 	}
 	
-	public boolean check_speed(double speed){
+	public static boolean check_nav(double distance, double x, double y, double w) {
+		boolean valid = false;
+	    if(distance <= GlobalVar.min_dist || x >= GlobalVar.max_move || y >= GlobalVar.max_move || w == 0){
+			valid = false;
+			Runner.valid_nav = false;
+		}
+		else{
+			valid = true;
+			Runner.valid_nav = true;
+		}
+		return valid;
+	}
+	
+	public boolean check_speed(boolean valid_speed, double speed){
 		boolean ret = false;
 		if(speed < GlobalVar.max_speed){
 			ret =  true;
+			Runner.valid_speed = true;
 		}else if(speed >= GlobalVar.max_speed){
 			ret =  false;
+			Runner.valid_speed = false;
 		}
 		return ret;
 	}
 	
-	public boolean check_vert_ang(double angle){
+	
+	
+	public boolean check_vert_ang(boolean valid_mast, double angle){
 		boolean ret = false;
 		if(angle < GlobalVar.max_vert_angle){
 			ret =  true;
+			Runner.valid_mast = true;
 		}else if(angle >= GlobalVar.max_vert_angle){
 			ret =  false;
+			Runner.valid_mast = false;
 		}
 		return ret;
 	}

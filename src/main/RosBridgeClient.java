@@ -53,28 +53,53 @@ public class RosBridgeClient {
 	    return client;
 	  }
 	 
-	 public JSONObject send_navigation_command(double navigation_change){
-		 JSONObject data = new JSONObject();
-		 data.put("data", navigation_change);
-		 
-		 JSONObject msg = new JSONObject();
-		 msg.put("op", "publish");
-		 msg.put("topic", "/move_base_simple/goal");
-		 msg.put("msg", data);
-		 msg.put("type", "geometry_msgs/PoseStamped");
-		 return msg;
-	 }
+	 public JSONObject send_navigation_command(double x, double y, double turn_z, double turn_w) {
+	    JSONObject msg = new JSONObject();
+	    JSONObject header = new JSONObject();
+	    JSONObject pose = new JSONObject();
+	    JSONObject position = new JSONObject();
+	    JSONObject orientation = new JSONObject();
+
+	    header.put("frame_id", "odom");
+	    
+	    position.put("x", x);
+	    position.put("y", y);
+	    position.put("z", 0);
+	    
+	    orientation.put("x", 0);
+	    orientation.put("y", 0);
+	    orientation.put("z", turn_z);
+	    orientation.put("w", turn_w);
+	    pose.put("position", position);
+	    pose.put("orientation", orientation);
+
+	    msg.put("op", "publish");
+	    msg.put("topic", "/move_base_simple/goal");
+	    msg.put("msg", new JSONObject().put("header", header).put("pose", pose));
+	    return msg;
+		}
 	 
 	 public JSONObject send_speed_command(double speed_change){
-		 JSONObject data = new JSONObject();
-		 data.put("data", speed_change);
-		 
-		 JSONObject msg = new JSONObject();
-		 msg.put("op", "publish");
-		 msg.put("topic", "/curiosity_mars_rover/ackermann_drive_controller/cmd_vel");
-		 msg.put("msg", data);
-		 msg.put("type", "geometry_msgs/Twist");
-		 return msg;
+		    JSONObject data = new JSONObject();
+		    data.put("x", speed_change);
+		    data.put("y", 0.0);
+		    data.put("z", 0.0);
+
+		    JSONObject angular_velocity = new JSONObject();
+		    angular_velocity.put("x", 0.0);
+		    angular_velocity.put("y", 0.0);
+		    angular_velocity.put("z", 0.0);
+
+		    JSONObject twist = new JSONObject();
+		    twist.put("linear", data);
+		    twist.put("angular", angular_velocity);
+
+		    JSONObject msg = new JSONObject();
+		    msg.put("op", "publish");
+		    msg.put("topic", "/curiosity_mars_rover/ackermann_drive_controller/cmd_vel");
+		    msg.put("msg", twist);
+		    msg.put("type", "geometry_msgs/Twist");
+		    return msg;
 	 }
 	 
 	 public JSONObject send_vert_ang_command(double angle_change){
