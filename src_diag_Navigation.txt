@@ -1,0 +1,11 @@
+digraph _logic_Navigation {
+rankdir=LR;
+node [shape = circle]; checkValid commandValid commandInvalid sendExecToROS sendMoveToNextCommand getDistAndCommand;
+node [shape = point]; _s_s;
+_s_s -> getDistAndCommand;
+commandValid -> sendExecToROS [ label = "(1) send_command\\\\System . out . println ( \" Sent navigation command to ROS \" ) ; "];
+getDistAndCommand -> checkValid [ label = "(1) check_nav\\\\System . out . println ( \" Checking the new navigation command data and obsticle distance! \" ) ; "];
+checkValid -> commandValid [ label = "(1) valid_command\\\\System . out . println ( \" Valid, send navigation command to the ROS System \" ) ; "];
+checkValid -> commandInvalid [ label = "(2) invalid_command\\\\System . out . println ( \" Invalid, send move on to the Control System \" ) ; "];
+sendExecToROS -> sendMoveToNextCommand [ label = "(1) send_move_on\\\\System . out . println ( \" Sent send move on to the Control System \" ) ; "];
+}

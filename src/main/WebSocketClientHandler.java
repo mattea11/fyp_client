@@ -42,12 +42,12 @@ public class WebSocketClientHandler implements Runnable {
 
             // Read input from the client and broadcast it to all clients
             while ((inputLine = in.readLine()) != null) {
-            	System.out.println("Client msg: " + inputLine);
+            	System.out.println("MESSAGE:\t\t\t " + inputLine);
             	try{
             	JSONObject jsonInputLine = new JSONObject(inputLine);
                 String firstKey = jsonInputLine.keys().next();
-                    
-                if(firstKey.contains("dist")){
+                System.out.println("FIRST KEY:\t" + firstKey);
+                if(firstKey.contains("curr_dist") || firstKey.contains("new_nav")){
                     GlobalVar.curr_data = null;
                     GlobalVar.change_data = null;
 
@@ -57,9 +57,19 @@ public class WebSocketClientHandler implements Runnable {
                     GlobalVar.turn_z_data = jcc.get_nav_command(jsonInputLine, "turn_z");
                     GlobalVar.turn_w_data = jcc.get_nav_command(jsonInputLine, "turn_w");
                 }
-                else if(firstKey.contains("speed") || firstKey.contains("ang")){
+                if(firstKey.contains("speed") || firstKey.contains("vert_ang")){
                     GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
                     GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
+
+                    GlobalVar.obj_dist = null;
+                    GlobalVar.x_data = null;
+                    GlobalVar.y_data = null;
+                    GlobalVar.turn_z_data = null;
+                    GlobalVar.turn_w_data = null;
+                }
+                else if(firstKey.contains("end")){
+                    GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
+                    GlobalVar.change_data = null;
 
                     GlobalVar.obj_dist = null;
                     GlobalVar.x_data = null;

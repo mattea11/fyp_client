@@ -1,89 +1,172 @@
-
 IMPORTS{
-import main.Bank;
-import main.User;
-import main.Account;
+import main.GlobalVar;
+import main.JSON_cleaner_creator;
+import main.LarvaServer;
+import main.RosBridgeClient;
+import main.WebSocketClientHandler;
+import main.checkCommand;
+import org.java_websocket.client.WebSocketClient;
 }
 
-GLOBAL{
-
-        VARIABLES{
-            int noOfUsers = 0;
-        }
-
-        EVENTS{
-            monitor_data() = {*.cleaned_nav_data()}
-            deleteUser() = {*.deleteUser()}
-        }   
-
-        PROPERTY Navigation{
-            STATES{
-                BAD{
-                    tooClose
-                }
-				NORMAL{
-                    stop
-                    turn
-                }
-                STARTING{
-                    move
-                }
-            }
-
-            TRANSITIONS{
-                move->move [sendvalidMove\\System.out.println("Valid move!");]
-                move->tooClose[sendInvalidMove\changeMove\System.out.println("Invalid move!");]
-                tooMany->start [deleteUser\noOfUsers == 6\noOfUsers--;]
-                start->badDelete [deleteUser\noOfUsers == 0\System.out.println("BAD State!!!");]
-                start->tooMany [addUser\noOfUsers == 5\noOfUsers++;]
-                start->start [addUser\\noOfUsers++;]
-                start->start [deleteUser\\noOfUsers--;]
-            }
-        }
-    
-    
-        PROPERTY Velocity{
-            STATES{
-                BAD{
-                    tooFast
-                }
-                STARTING{
-                    incSpeed
-                    decSpeed
-                }
-            }
-
-            TRANSITIONS{
-                tooMany->tooMany [addAccount\\noOfAccounts++;System.out.println("Too many accounts already");]
-                tooMany->tooMany [deleteAccount\noOfAccounts > 6\noOfAccounts--;]
-                tooMany->start [deleteAccount\noOfAccounts == 6\noOfAccounts--;]
-                start->badDelete [deleteAccount\noOfAccounts == 0\System.out.println("BAD State!!!");]
-                start->tooMany [addAccount\noOfAccounts == 5\noOfAccounts++;]
-                start->start [addAccount\\noOfAccounts++;]
-                start->start [deleteAccount\\noOfAccounts--;]
-            }
-        }
- 
+GLOBAL {
 	
-        PROPERTY Mast{
-            STATES{
-                BAD{
-                    tooExt
-                }
-                STARTING{
-                    moveClockwise
-                    moveAnticlockwise
-                }
-            }
+	EVENTS{
+		get_change_data() = {*.get_change_data()}
+		
+		valid_command() = {*.larva_check_valid_action1()}
+		invalid_command() = {*.larva_check_valid_action2()}
+		
+		send_move_on(String message )= {*.broadcast(message)}
+		send_command(String message)= {*.send(message)}
+		
+		check_nav(double distance, double x, double y, double w)= {*.check_vert_ang(distance, x, y, w)}
+		check_speed(double change_speed)= {*.check_speed(change_speed)}
+		check_vert_ang(double change_ang)= {*.check_vert_ang(change_ang)}
+						
+	}
+	
+			PROPERTY Navigation{
+		STATES{
 
-            TRANSITIONS{
-                tooMany->tooMany [addTransaction\\noOfTransactions++;System.out.println("Too many transactions already");]
-                tooMany->tooMany [deleteTransaction\noOfTransactions > 6\noOfTransactions--;]
-                tooMany->start [deleteTransaction\noOfTransactions == 6\noOfTransactions--;]
-                start->badDelete [deleteTransaction\noOfTransactions == 0\System.out.println("BAD State!!!");]
-                start->tooMany [addTransaction\noOfTransactions == 5\noOfTransactions++;]
-                start->start [addTransaction\\noOfTransactions++;]
-                start->start [deleteTransaction\\noOfTransactions--;]
+            NORMAL{
+            	checkValid
+            	commandValid
+            	commandInvalid
+                sendExecToROS
+                sendMoveToNextCommand
             }
-        }
-}
+            STARTING{
+                getDistAndCommand
+            }
+		}
+		
+		TRANSITIONS{
+			getDistAndCommand->checkValid
+        		[check_nav
+        		\
+        		\System.out.println("Checking the new navigation command data and obsticle distance!");
+            	]
+            	
+            checkValid->commandValid
+        		[valid_command
+        		\
+        		\System.out.println("Valid, send navigation command to the ROS System"); 
+            	]
+	            	
+            commandValid->sendExecToROS 
+            	[send_command
+            	\
+            	\System.out.println("Sent navigation command to ROS");
+            	]
+            	
+           	sendExecToROS->sendMoveToNextCommand 
+            	[send_move_on
+            	\
+            	\System.out.println("Sent send move on to the Control System");
+            	]
+            	
+            	checkValid->commandInvalid
+        		[invalid_command
+        		\
+        		\System.out.println("Invalid, send move on to the Control System"); 
+            	]
+			}
+	}
+	
+		PROPERTY Speed{
+		STATES{
+
+            NORMAL{
+            	checkValid
+            	commandValid
+            	commandInvalid
+                sendExecToROS
+                sendMoveToNextCommand
+            }
+            STARTING{
+                getCommand
+            }
+		}
+		
+		TRANSITIONS{
+			getCommand->checkValid
+        		[check_speed
+        		\
+        		\System.out.println("Checking the new speed command data!");
+            	]
+            	
+            checkValid->commandValid
+        		[valid_command
+        		\
+        		\System.out.println("Valid, send speed command to the ROS System"); 
+            	]
+	            	
+            commandValid->sendExecToROS 
+            	[send_command
+            	\
+            	\System.out.println("Sent speed command to ROS");
+            	]
+            	
+           	sendExecToROS->sendMoveToNextCommand 
+            	[send_move_on
+            	\
+            	\System.out.println("Sent send move on to the Control System");
+            	]
+            	
+            	checkValid->commandInvalid
+        		[invalid_command
+        		\
+        		\System.out.println("Invalid, send move on to the Control System"); 
+            	]
+			}
+	}
+	
+	PROPERTY Mast_Angle{
+		STATES{
+
+            NORMAL{
+            	checkValid
+            	commandValid
+            	commandInvalid
+                sendExecToROS
+                sendMoveToNextCommand
+            }
+            STARTING{
+                getCommand
+            }
+		}
+		
+		TRANSITIONS{
+			getCommand->checkValid
+        		[check_vert_ang
+        		\
+        		\System.out.println("Checking the new Mast command data!");
+            	]
+            	
+            checkValid->commandValid
+        		[valid_command
+        		\
+        		\System.out.println("Valid, send Mast command to the ROS System"); 
+            	]
+	            	
+            commandValid->sendExecToROS 
+            	[send_command
+            	\
+            	\System.out.println("Sent Mast command to ROS");
+            	]
+            	
+           	sendExecToROS->sendMoveToNextCommand 
+            	[send_move_on
+            	\
+            	\System.out.println("Sent send move on to the Control System");
+            	]
+            	
+            	checkValid->commandInvalid
+        		[invalid_command
+        		\
+        		\System.out.println("Invalid, send move on to the Control System"); 
+            	]
+			}
+	}
+	
+ }

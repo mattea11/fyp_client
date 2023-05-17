@@ -14,7 +14,7 @@ public class GlobalVar {
 	static Pair<String, Double> change_data = null;
 	
 	final static double min_dist = 5.0;
-	final static double max_move = 1.0;
+	final static double max_move = 3.0;
 	final static double max_speed = 0.5;
 	final static double max_vert_angle = 0.08;
 

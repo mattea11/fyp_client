@@ -1,0 +1,11 @@
+digraph _logic_Mast_Angle {
+rankdir=LR;
+node [shape = circle]; checkValid commandValid commandInvalid sendExecToROS sendMoveToNextCommand getCommand;
+node [shape = point]; _s_s;
+_s_s -> getCommand;
+commandValid -> sendExecToROS [ label = "(1) send_command\\\\System . out . println ( \" Sent Mast command to ROS \" ) ; "];
+getCommand -> checkValid [ label = "(1) check_vert_ang\\\\System . out . println ( \" Checking the new Mast command data! \" ) ; "];
+checkValid -> commandValid [ label = "(1) valid_command\\\\System . out . println ( \" Valid, send Mast command to the ROS System \" ) ; "];
+checkValid -> commandInvalid [ label = "(2) invalid_command\\\\System . out . println ( \" Invalid, send move on to the Control System \" ) ; "];
+sendExecToROS -> sendMoveToNextCommand [ label = "(1) send_move_on\\\\System . out . println ( \" Sent send move on to the Control System \" ) ; "];
+}

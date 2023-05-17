@@ -11,10 +11,13 @@ import java.util.List;
 public class LarvaServer{
     private int port;
     private static List<WebSocketClientHandler> clients;
+    private ServerSocket serverSocket;
+    private boolean isRunning;
 
     public LarvaServer(int port) {
         this.port = port;
         this.clients = new ArrayList<>();
+        this.isRunning = false;
     }
 
 
@@ -27,9 +30,10 @@ public class LarvaServer{
             System.out.println("Larva server started on: " + hostAddress + ":" + port);
 
             // Create a server socket on the specified port
-            ServerSocket serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
+            isRunning = true;
 
-            while (true) {
+            while (isRunning) {
                 // Accept incoming client connections
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
@@ -46,6 +50,21 @@ public class LarvaServer{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+	
+    public void close() {
+        isRunning = false;
+
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Clear the list of clients
+        clients.clear();
     }
 
     public static void broadcast(String message) {

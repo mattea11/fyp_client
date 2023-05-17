@@ -6,11 +6,6 @@ public class checkCommand {
 		double data = GlobalVar.change_data.getValue1();
 		return data;
 	}
-
-	public static double get_total_data(){
-		double data = GlobalVar.curr_data.getValue1() + GlobalVar.change_data.getValue1();
-		return data;
-	}
 	
 	public static boolean check_nav(double distance, double x, double y, double w) {
 		boolean valid = false;
@@ -25,7 +20,7 @@ public class checkCommand {
 		return valid;
 	}
 	
-	public boolean check_speed(boolean valid_speed, double speed){
+	public boolean check_speed(double speed){
 		boolean ret = false;
 		if(speed < GlobalVar.max_speed){
 			ret =  true;
@@ -39,7 +34,7 @@ public class checkCommand {
 	
 	
 	
-	public boolean check_vert_ang(boolean valid_mast, double angle){
+	public boolean check_vert_ang(double angle){
 		boolean ret = false;
 		if(angle < GlobalVar.max_vert_angle){
 			ret =  true;
