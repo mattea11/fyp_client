@@ -7,21 +7,26 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 public class LarvaServer{
     private int port;
     private static List<WebSocketClientHandler> clients;
     private ServerSocket serverSocket;
     private boolean isRunning;
+    public volatile Socket clientSocket;
+    private Lock lock;
+    private boolean runMon;
 
-    public LarvaServer(int port) {
+    public LarvaServer(int port, Lock lock, boolean runMon) {
         this.port = port;
-        this.clients = new ArrayList<>();
+        LarvaServer.clients = new ArrayList<>();
         this.isRunning = false;
+        this.lock = lock;
+        this.runMon = runMon;
     }
 
-
-	public void start() {
+	public Socket start() {        
         try {
             // Get the computer's IP address
             InetAddress ipAddress = InetAddress.getLocalHost();
@@ -31,18 +36,20 @@ public class LarvaServer{
 
             // Create a server socket on the specified port
             serverSocket = new ServerSocket(port);
-            isRunning = true;
+            isRunning = true;            
 
             while (isRunning) {
+            	
+            	System.out.println("SERVER LOOP");
                 // Accept incoming client connections
-                Socket clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
                 System.out.println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
-                System.out.println("~~~");
                 // Create a new handler for the client and start it in a separate thread
-                WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, this); //to fix edit client handler
+                WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, lock, runMon); 
                 clients.add(clientHandler);
-                Thread clientThread = new Thread(clientHandler);
-                clientThread.start();
+                clientHandler.run();
+                // Thread clientThread = new Thread(clientHandler);
+                // clientThread.start();
             }
 
         } catch (UnknownHostException e) {
@@ -50,6 +57,8 @@ public class LarvaServer{
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return clientSocket;
     }
 	
     public void close() {
@@ -79,9 +88,4 @@ public class LarvaServer{
         clients.remove(client);
     }
 
-//    public static void main(String[] args) {
-//        // Start the WebSocket server on port 8080
-//    	LarvaServer  server = new LarvaServer(8080);
-//        server.start();
-//    }
 }

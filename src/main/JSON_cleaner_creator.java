@@ -40,9 +40,6 @@ public class JSON_cleaner_creator {
 		else if(data.has("curr_vert_ang")){
 			curr_data = Pair.with("curr_vert_ang", data.getDouble("curr_vert_ang"));
 		}
-		else if(data.has("curr_horiz_ang")){
-			curr_data = Pair.with("curr_horiz_ang", data.getDouble("curr_horiz_ang"));
-		}
 		else if(data.has("end_program")){
 			curr_data = Pair.with("end_program", data.getDouble("end_program"));
 		}
