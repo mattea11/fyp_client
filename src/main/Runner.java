@@ -3,12 +3,9 @@ package main;
 import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import org.java_websocket.client.WebSocketClient;
 import org.json.JSONObject;
-
 import java.lang.management.ManagementFactory;
-
 import com.sun.management.OperatingSystemMXBean;
 
 public class Runner {
@@ -42,32 +39,24 @@ public class Runner {
 		WebSocketClient rosClient = rbc.StartRosBridgeClient();
 
 		Thread monitoringThread = new Thread(() -> {
-			System.out.println("MONITORING");
 			while (true) {
-				System.out.println("Entered mon loop");
-				if(!runMon){
+				if (!runMon) {
 					try {
-						Thread.sleep(2000);
-						System.out.println("Sleeping in monitor");
+						Thread.sleep(200);
+						continue;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					continue;
 				}
-				System.out.println("MAIN LOOP");
 				synchronized (lock) {
 					try {
-						System.out.println("waiting to lock in monitor");
-						System.out.println("does thread mon have lock? " + Thread.holdsLock(lock));
 						lock.lock();
-						System.out.println("LOCKED MON");
 						if (GlobalVar.curr_data != null) {
 							System.out.println("CURR data key: " + GlobalVar.curr_data.getValue0());
 						}
 
 						// check what type of command was received
 						if (GlobalVar.curr_data == null && GlobalVar.obj_dist == null) {
-							System.out.println("Nothing to compute");
 							continue;
 						} else if (GlobalVar.curr_data != null && GlobalVar.change_data != null
 								&& GlobalVar.obj_dist != null && GlobalVar.x_data != null && GlobalVar.y_data != null
@@ -79,12 +68,10 @@ public class Runner {
 							double nav_z = GlobalVar.turn_z_data.getValue1();
 							double nav_w = GlobalVar.turn_w_data.getValue1();
 
-							// navigation isnt allowed
 							boolean valid = checkCommand.check_nav(obj_distance, nav_x, nav_y, nav_w)
 									? larva_check_valid_action1()
 									: larva_check_valid_action2();
 							if (!valid) {
-								// if it isnt skip and move on
 								System.out.println("Invalid, send move on");
 								LarvaServer.broadcast("wrong move on");
 							} else if (valid) {
@@ -102,7 +89,6 @@ public class Runner {
 									LarvaServer.broadcast("valid move on");
 									System.out.println("sent");
 								} else if (!valid_speed) {
-									// if it isnt skip and move on
 									System.out.println("Invalid, send move on");
 									LarvaServer.broadcast("wrong move on");
 								}
@@ -115,7 +101,6 @@ public class Runner {
 										: larva_check_valid_action2();
 								if (valid) {
 									JSONObject command_to_send = rbc.send_vert_ang_command(change_ang);
-									// System.out.println("command to send from main: " + command_to_send);
 									rosClient.send(command_to_send.toString());
 									System.out.println("Valid command , send to Ros system");
 									System.out.println(command_to_send.toString());
@@ -125,31 +110,28 @@ public class Runner {
 									System.out.println("Invalid command , send move on to Control system");
 									LarvaServer.broadcast("wrong move on");
 								}
+							} else if (GlobalVar.curr_data != null && GlobalVar.curr_data.getValue0().contains("end")) {
+								System.out.println("No more commands received, ending!");
+								long endTime = System.currentTimeMillis();
+								System.out.println("Time taken: " + (endTime - startTime) / 1000); // ms
+								OperatingSystemMXBean operatingSystemMXBeanEnd = (OperatingSystemMXBean)
+								ManagementFactory
+								.getOperatingSystemMXBean();
+								System.out
+								.println("CPU use end: " + operatingSystemMXBeanEnd.getProcessCpuLoad() *
+								100);
+
+								System.exit(0);
 							}
-						} else if (GlobalVar.curr_data != null && GlobalVar.curr_data.getValue0().contains("end")) {
-							System.out.println("No more commands received, ending!");
-							long endTime = System.currentTimeMillis();
-							System.out.println("Time taken: " + (endTime - startTime) / 1000); // ms
-							OperatingSystemMXBean operatingSystemMXBeanEnd = (OperatingSystemMXBean) ManagementFactory
-									.getOperatingSystemMXBean();
-							System.out.println("CPU use end: " + operatingSystemMXBeanEnd.getProcessCpuLoad() * 100);
-							System.exit(0);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
 						runMon = false;
-						System.out.println("Released and notifying client");
-//						monitorLocked = false;
 						synchronized (lock) {
-						lock.unlock();
-						lock.notify();
+							lock.unlock();
+							lock.notify();
 						}
-						System.out.println("Unlcoked from monit");
-//						synchronized (lock) {
-//						lock.notify();
-//						}
-						System.out.println("notified from monit");
 					}
 				}
 			}

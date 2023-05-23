@@ -20,7 +20,6 @@ public class WebSocketClientHandler implements Runnable {
 
     public WebSocketClientHandler(Socket clientSocket, Lock lock, boolean runMon) {
         this.clientSocket = clientSocket;
-//        this.server = larvaServer;
          this.lock = lock;
          this.runMon= Runner.runMon;
     }
@@ -31,41 +30,34 @@ public class WebSocketClientHandler implements Runnable {
         JSON_cleaner_creator jcc = new JSON_cleaner_creator();
 
         try {
-            System.out.println("Enetirng msg");
             // Create input and output streams for the client socket
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				out = new PrintWriter(clientSocket.getOutputStream(), true);
 
             String inputLine;
 
-            // timeout if no messaeg recieved
-//            clientSocket.setSoTimeout(100);
-
-            // tell the client they have successfully connected
             out.println("Your connection has been established !");
 
-            // Read input from the client and broadcast it to all clients
             while (true) {
             	if((inputLine = in.readLine()) == null){
-            		runMon = true;
-            		System.out.println("sleeping in client");
-            		Thread.sleep(2000);
-            		continue;
+            		try {
+            			runMon = true;
+                		Thread.sleep(200);
+                		continue;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
             	}
             	
-                System.out.println("MESSAGE:\t\t\t " + inputLine);
+                System.out.println("Message received:\t" + inputLine);
                 synchronized (lock) {
                     try {
-                        System.out.println("waiting to lock in client");
-                        System.out.println("does thread client have lock? " + Thread.holdsLock(lock));
                         lock.lock();
-                        System.out.println("Client successfully locked!!");
-//                        }
+
                         JSONObject jsonInputLine = new JSONObject(inputLine);
                         String firstKey = jsonInputLine.keys().next();
                         if (firstKey.contains("curr_dist") || firstKey.contains("new_nav")
                                 || firstKey.contains("speed")) {
-                            System.out.println("PARSING NAV");
                             GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
                             GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
 
@@ -76,7 +68,6 @@ public class WebSocketClientHandler implements Runnable {
                             GlobalVar.turn_w_data = jcc.get_nav_command(jsonInputLine, "turn_w");
                         }
                         if (firstKey.contains("vert_ang") || firstKey.contains("end")) {
-                            System.out.println("PARSING MAST");
                             GlobalVar.curr_data = jcc.get_curr_data(jsonInputLine);
                             GlobalVar.change_data = jcc.get_change_data(jsonInputLine);
 
@@ -88,29 +79,20 @@ public class WebSocketClientHandler implements Runnable {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {           
-                        runMon = true;             
-                        System.out.println("Uncloekd from client");
+                    } finally {    
+                        runMon = true;
+                        Runner.runMon = true;
                         synchronized (lock) {
-                        lock.unlock();
-                        lock.notify();
+	                        lock.unlock();
+	                        lock.notify();
                         }
-                        System.out.println("Notified from client");
                     }
                 }
-
-                // Client disconnected, remove from server's client list
-//                server.removeClient(this);
             }
-            
         }
         catch (IOException e) {
         	System.out.println("Null!!!");
-        } catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        System.out.println("NO GOOD SUPER MEGA DANGER");
+        } 
     }
 
     public void sendMessageToRosMon(String message) {

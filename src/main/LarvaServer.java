@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 
-public class LarvaServer{
+public class LarvaServer {
     private int port;
     private static List<WebSocketClientHandler> clients;
     private ServerSocket serverSocket;
@@ -26,7 +26,7 @@ public class LarvaServer{
         this.runMon = runMon;
     }
 
-	public Socket start() {        
+    public Socket start() {
         try {
             // Get the computer's IP address
             InetAddress ipAddress = InetAddress.getLocalHost();
@@ -36,31 +36,25 @@ public class LarvaServer{
 
             // Create a server socket on the specified port
             serverSocket = new ServerSocket(port);
-            isRunning = true;            
+            isRunning = true;
 
             while (isRunning) {
-            	
-            	System.out.println("SERVER LOOP");
-                // Accept incoming client connections
                 clientSocket = serverSocket.accept();
-                System.out.println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
-                // Create a new handler for the client and start it in a separate thread
-                WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, lock, runMon); 
+                System.out
+                        .println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
+
+                WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, lock, runMon);
                 clients.add(clientHandler);
                 clientHandler.run();
-                // Thread clientThread = new Thread(clientHandler);
-                // clientThread.start();
             }
-
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return clientSocket;
     }
-	
+
     public void close() {
         isRunning = false;
 
@@ -71,20 +65,16 @@ public class LarvaServer{
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Clear the list of clients
         clients.clear();
     }
 
     public static void broadcast(String message) {
-        // Broadcast a message to all connected clients
         for (WebSocketClientHandler client : clients) {
             client.sendMessageToRosMon(message);
         }
     }
 
     public void removeClient(WebSocketClientHandler client) {
-        // Remove a client from the list of connected clients
         clients.remove(client);
     }
 
