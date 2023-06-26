@@ -4,34 +4,13 @@ import java.net.URISyntaxException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.java_websocket.client.WebSocketClient;
-<<<<<<< HEAD
-=======
 import org.json.JSONObject;
 import java.lang.management.ManagementFactory;
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 import com.sun.management.OperatingSystemMXBean;
 
 public class Runner {
 	static boolean runMon = true;
 	static Lock lock = new ReentrantLock(true);
-<<<<<<< HEAD
-
-	public static void main(String[] args) throws URISyntaxException, InterruptedException {
-
-		// start the server that allows commands to be sent to the system
-		Thread serverThread = new Thread(() -> {
-			System.out.println("Starting Larva server");
-			LarvaServer larvaServer = new LarvaServer(8081, lock, runMon);
-			larvaServer.start();
-		});
-		serverThread.start();
-
-		//starting the client connection to the rosbridge on the mian thread
-		RosBridgeClient rbc = new RosBridgeClient();
-		WebSocketClient rosClient = rbc.StartRosBridgeClient();
-
-		//this thread is incharge of validating the data the sytsem recieves
-=======
 
 	static boolean larva_check_valid_action1() {
 		return true;
@@ -59,31 +38,19 @@ public class Runner {
 		RosBridgeClient rbc = new RosBridgeClient();
 		WebSocketClient rosClient = rbc.StartRosBridgeClient();
 
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 		Thread monitoringThread = new Thread(() -> {
 			while (true) {
 				if (!runMon) {
 					try {
-<<<<<<< HEAD
-						Thread.sleep(2000);
-=======
 						Thread.sleep(200);
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 						continue;
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-<<<<<<< HEAD
-
-=======
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 				}
 				synchronized (lock) {
 					try {
 						lock.lock();
-<<<<<<< HEAD
-						LarvaServer.broadcast("wrong move on");
-=======
 						if (GlobalVar.curr_data != null) {
 							System.out.println("CURR data key: " + GlobalVar.curr_data.getValue0());
 						}
@@ -157,7 +124,6 @@ public class Runner {
 								System.exit(0);
 							}
 						}
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
