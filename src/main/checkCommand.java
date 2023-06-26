@@ -11,11 +11,9 @@ public class checkCommand {
 		boolean valid = false;
 	    if(distance <= GlobalVar.min_dist || x >= GlobalVar.max_move || y >= GlobalVar.max_move || w == 0){
 			valid = false;
-			Runner.valid_nav = false;
 		}
 		else{
 			valid = true;
-			Runner.valid_nav = true;
 		}
 		return valid;
 	}
@@ -24,10 +22,8 @@ public class checkCommand {
 		boolean ret = false;
 		if(speed < GlobalVar.max_speed){
 			ret =  true;
-			Runner.valid_speed = true;
 		}else if(speed >= GlobalVar.max_speed){
 			ret =  false;
-			Runner.valid_speed = false;
 		}
 		return ret;
 	}
@@ -38,10 +34,8 @@ public class checkCommand {
 		boolean ret = false;
 		if(angle < GlobalVar.max_vert_angle){
 			ret =  true;
-			Runner.valid_mast = true;
 		}else if(angle >= GlobalVar.max_vert_angle){
 			ret =  false;
-			Runner.valid_mast = false;
 		}
 		return ret;
 	}
