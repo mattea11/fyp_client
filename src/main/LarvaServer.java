@@ -41,11 +41,11 @@ public class LarvaServer {
                 clientSocket = serverSocket.accept();
                 System.out
                         .println("Client connected to Larva server: " + clientSocket.getInetAddress().getHostAddress());
+
                 WebSocketClientHandler clientHandler = new WebSocketClientHandler(clientSocket, lock, runMon);
                 clients.add(clientHandler);
                 clientHandler.run();
             }
-
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -64,7 +64,6 @@ public class LarvaServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         clients.clear();
     }
 

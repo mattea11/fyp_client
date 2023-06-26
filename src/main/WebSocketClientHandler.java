@@ -30,19 +30,23 @@ public class WebSocketClientHandler implements Runnable {
 
         try {
             // Create input and output streams for the client socket
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+				in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				out = new PrintWriter(clientSocket.getOutputStream(), true);
 
             out.println("Your connection has been established !");
             String inputLine;
 
             while (true) {
-                if ((inputLine = in.readLine()) == null) {
-                    runMon = true;
-                    Thread.sleep(2000);
-                    continue;
-                }
-
+            	if((inputLine = in.readLine()) == null){
+            		try {
+            			runMon = true;
+                		Thread.sleep(200);
+                		continue;
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+            	}
+            	
                 System.out.println("Message received:\t" + inputLine);
                 synchronized (lock) {
                     try {
@@ -73,20 +77,20 @@ public class WebSocketClientHandler implements Runnable {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
+                    } finally {    
                         runMon = true;
+                        Runner.runMon = true;
                         synchronized (lock) {
-                            lock.unlock();
-                            lock.notify();
+	                        lock.unlock();
+	                        lock.notify();
                         }
                     }
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Client handler timed out! No new messages");
-        } catch (InterruptedException e) {
-            System.out.println("Interrupted");
         }
+        catch (IOException e) {
+        	System.out.println("Null!!!");
+        } 
     }
 
     public void sendMessageToRosMon(String message) {
