@@ -11,12 +11,7 @@ public class checkCommand {
 		boolean valid = false;
 		if (distance <= GlobalVar.min_dist || x >= GlobalVar.max_move || y >= GlobalVar.max_move || w == 0) {
 			valid = false;
-<<<<<<< HEAD
-		}
-		else{
-=======
 		} else {
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 			valid = true;
 		}
 		return valid;
@@ -24,34 +19,20 @@ public class checkCommand {
 
 	public boolean check_speed(double speed) {
 		boolean ret = false;
-<<<<<<< HEAD
-		if(speed < GlobalVar.max_speed){
-			ret =  true;
-		}else if(speed >= GlobalVar.max_speed){
-			ret =  false;
-=======
 		if (speed < GlobalVar.max_speed) {
 			ret = true;
 		} else if (speed >= GlobalVar.max_speed) {
 			ret = false;
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 		}
 		return ret;
 	}
 
 	public boolean check_vert_ang(double angle) {
 		boolean ret = false;
-<<<<<<< HEAD
-		if(angle < GlobalVar.max_vert_angle){
-			ret =  true;
-		}else if(angle >= GlobalVar.max_vert_angle){
-			ret =  false;
-=======
 		if (angle < GlobalVar.max_vert_angle) {
 			ret = true;
 		} else if (angle >= GlobalVar.max_vert_angle) {
 			ret = false;
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
 		}
 		return ret;
 	}

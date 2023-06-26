@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 [Navigation]AUTOMATON::> Navigation() STATE::>getDistAndCommand
 [Speed]AUTOMATON::> Speed() STATE::>getCommand
 [Mast_Angle]AUTOMATON::> Mast_Angle() STATE::>getCommand
@@ -216,4 +214,3 @@ Sent send move on to the Control System
 [Navigation]AUTOMATON::> Navigation() STATE::>getDistAndCommand
 [Speed]AUTOMATON::> Speed() STATE::>sendMoveToNextCommand
 [Mast_Angle]AUTOMATON::> Mast_Angle() STATE::>commandInvalid
->>>>>>> 4da8540d56bf5209d38c5958c73e36080984882d
