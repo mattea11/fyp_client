@@ -11,9 +11,10 @@ import org.json.JSONObject;
 
 @ClientEndpoint
 public class RosBridgeClient {
+	//this class is in charge of handeling creating a client and the connection to the rosbridge
 
 	public WebSocketClient StartRosBridgeClient() throws URISyntaxException, InterruptedException {
-		//the port used is the rosbrige server that allows communication between ros and non ros systems
+		//the port used is the rosbridge server that allows communication between ros and non ros systems
 		WebSocketClient client = new WebSocketClient(new URI("ws://localhost:9090")) {
 			@Override
 			public void onOpen(ServerHandshake serverHandshake) {
@@ -48,7 +49,9 @@ public class RosBridgeClient {
 		}
 		return client;
 	}
-
+	
+	//the following functions are use to send the verified commands to their respective rostopic 
+	//so that they may be executed
 	public JSONObject send_navigation_command(double x, double y, double turn_z, double turn_w) {
 		JSONObject msg = new JSONObject();
 		JSONObject header = new JSONObject();

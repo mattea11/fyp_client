@@ -24,7 +24,7 @@ public class LarvaServer {
         this.isRunning = false;
         this.lock = lock;
         this.runMon = runMon;
-    }
+    } 
 
     public Socket start() {
         try {
@@ -36,7 +36,8 @@ public class LarvaServer {
 
             serverSocket = new ServerSocket(port);
             isRunning = true;
-
+            
+            // the server is running allow clients to connect
             while (isRunning) {
                 clientSocket = serverSocket.accept();
                 System.out

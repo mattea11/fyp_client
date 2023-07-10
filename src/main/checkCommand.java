@@ -2,11 +2,13 @@ package main;
 
 public class checkCommand {
 
+	//this command is used as a hook for larva 
 	public double get_change_data() {
 		double data = GlobalVar.change_data.getValue1();
 		return data;
 	}
 
+	//these functions are used to check the validity of the commands passed in respectively
 	public static boolean check_nav(double distance, double x, double y, double w) {
 		boolean valid = false;
 		if (distance <= GlobalVar.min_dist || x >= GlobalVar.max_move || y >= GlobalVar.max_move || w == 0) {
@@ -36,10 +38,4 @@ public class checkCommand {
 		}
 		return ret;
 	}
-
-	public double get_total_ang() {
-		double angle = GlobalVar.curr_data.getValue1() + GlobalVar.change_data.getValue1();
-		return angle;
-	}
-
 }

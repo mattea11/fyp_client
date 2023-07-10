@@ -9,7 +9,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.json.JSONObject;
 
-//for handeling client connection to larva server
+//this class is in charge of handling ROS client connection to larva server
 public class WebSocketClientHandler implements Runnable {
     private Socket clientSocket;
     private BufferedReader in;
@@ -48,10 +48,11 @@ public class WebSocketClientHandler implements Runnable {
             	}
             	
                 System.out.println("Message received:\t" + inputLine);
+                //enter in a locked block so that the variables cannot be read from while they are being written to
                 synchronized (lock) {
                     try {
                         lock.lock();
-
+                        //check what type of command was received and store it in the global variables accordingly
                         JSONObject jsonInputLine = new JSONObject(inputLine);
                         String firstKey = jsonInputLine.keys().next();
                         if (firstKey.contains("curr_dist") || firstKey.contains("new_nav")
@@ -78,6 +79,7 @@ public class WebSocketClientHandler implements Runnable {
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {    
+                        //once the variables are updated the locked section is exited
                         runMon = true;
                         Runner.runMon = true;
                         synchronized (lock) {

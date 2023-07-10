@@ -11,7 +11,7 @@ import com.sun.management.OperatingSystemMXBean;
 public class Runner {
 	static boolean runMon = true;
 	static Lock lock = new ReentrantLock(true);
-
+	//fucntions used for hooking in Larva
 	static boolean larva_check_valid_action1() {
 		return true;
 	}
@@ -49,13 +49,14 @@ public class Runner {
 					}
 				}
 				synchronized (lock) {
+					//enter in a locked block so that the variables cannot be Written to while they are being read from
 					try {
 						lock.lock();
 						if (GlobalVar.curr_data != null) {
 							System.out.println("CURR data key: " + GlobalVar.curr_data.getValue0());
 						}
 
-						// check what type of command was received
+						// check what type of command was received and validate it as such
 						if (GlobalVar.curr_data == null && GlobalVar.obj_dist == null) {
 							continue;
 						} else if (GlobalVar.curr_data != null && GlobalVar.change_data != null
@@ -127,6 +128,7 @@ public class Runner {
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
+						//exit the locked section once the command has been verified/rejected
 						runMon = false;
 						synchronized (lock) {
 							lock.unlock();

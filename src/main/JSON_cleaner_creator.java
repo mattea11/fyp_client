@@ -4,7 +4,8 @@ import org.javatuples.Pair;
 import org.json.JSONObject;
 
 public class JSON_cleaner_creator {
-
+	//these function are used to clean the json object that arrives from the 
+	// ROS monitoring clean it and store it in the global variables
 	public Pair<String, Double> get_obj_dist(JSONObject data) {
 		Pair<String, Double> obj_dist = null;
 		if (data.has("curr_distances")) {
